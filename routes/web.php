@@ -45,7 +45,7 @@ Route::prefix('/admin')->group(function(){
     Route::get('/produtos', function () {
         echo 'produtos';
     });
-    Route::get('/produto/{slug}', function ($slug = "Slug") {
+    Route::get('/produto/{slug}', function ($slug) {
         echo 'Produto: ' . $slug;
-    })->where('slug','[^a-zA-Z0-9]+');
+    })->where('slug', '[a-zA-Z0-9\-]+');
 });
