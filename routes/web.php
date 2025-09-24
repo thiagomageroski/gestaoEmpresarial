@@ -1,35 +1,32 @@
 <?php
 
+use App\Http\Controllers\Auth\RegisterController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\HomeController;
-use App\Http\Controllers\ProdutoController;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\AdminController;
-use App\Http\Controllers\ClienteController;
+use App\Http\Controllers\{
+    HomeController, AuthController, AdminController, ProdutoController, ClienteController
+};
 
-Route::get('/', [HomeController::class, 'index'])->name('home');
+// Públicas
+Route::get('/', [HomeController::class, 'home'])->name('home');
+Route::get('/sobre', [HomeController::class, 'sobre'])->name('sobre');
+Route::get('/cadastro', [HomeController::class, 'cadastro'])->name('cadastro');
+Route::post('/cadastro', [ClienteController::class, 'store'])->name('clientes.store');
 
 Route::get('/produtos', [ProdutoController::class, 'index'])->name('produtos.index');
-Route::get('/produtos/{produto_id}', [ProdutoController::class, 'show'])
-    ->where('produto_id','[0-9]+')
-    ->name('produtos.show');
+Route::get('/produtos/{produto}', [ProdutoController::class, 'show'])->name('produtos.show');
 
-Route::get('/cadastro', [AuthController::class, 'cadastro'])->name('cadastro');
-Route::get('/login', [AuthController::class, 'login'])->name('login');
-Route::get('/sobre', [HomeController::class, 'sobre'])->name('about');
+// Auth
+Route::get('/admin/login', [AuthController::class, 'showLogin'])->name('login');
+Route::post('/admin/login', [AuthController::class, 'login'])->name('login.post');
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-Route::prefix('/admin')->group(function () {
-    Route::get('/login', [AdminController::class, 'login'])->name('admin.login');
+// Área Admin (protegida)
+Route::middleware('auth')->prefix('admin')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
 
-    Route::get('/clientes', [ClienteController::class, 'index'])->name('admin.clientes.index');
-    Route::get('/clientes/{id}', [ClienteController::class, 'show'])
-        ->where('id','[0-9]+')
-        ->name('admin.clientes.show');
-
-    Route::get('/fornecedores', [AdminController::class, 'fornecedores'])->name('admin.fornecedores');
-    Route::get('/produtos', [AdminController::class, 'produtos'])->name('admin.produtos');
-    Route::get('/produto/{slug}', [AdminController::class, 'produto'])
-        ->where('slug', '[a-zA-Z0-9\-]+')
-        ->name('admin.produto');
+    Route::get('/produtos', [ProdutoController::class, 'adminIndex'])->name('admin.produtos');
+    Route::get('/produtos/{produto}', [AdminController::class, 'show'])->name('admin.produtos.show');
+    Route::post('/produtos', [ProdutoController::class, 'store'])->name('admin.produtos.store');
+    Route::put('/produtos/{produto}', [ProdutoController::class, 'update'])->name('admin.produtos.update');
+    Route::delete('/produtos/{produto}', [ProdutoController::class, 'destroy'])->name('admin.produtos.destroy');
 });

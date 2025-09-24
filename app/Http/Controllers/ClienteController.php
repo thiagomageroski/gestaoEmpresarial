@@ -2,15 +2,22 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Cliente;
 use Illuminate\Http\Request;
 
 class ClienteController extends Controller
 {
-    public function index() {
-        return view('pages.admin.clientes.index');
-    }
+    public function store(Request $request)
+    {
+        $dados = $request->validate([
+            'nome' => ['required','string','max:255'],
+            'email' => ['required','email','unique:clientes,email'],
+            'telefone' => ['nullable','string','max:20'],
+        ]);
 
-    public function show($id) {
-        return view('pages.admin.clientes.show', compact('id'));
+        Cliente::create($dados);
+
+        return redirect()->route('cadastro')
+            ->with('sucesso', 'Cadastro realizado com sucesso!');
     }
 }
